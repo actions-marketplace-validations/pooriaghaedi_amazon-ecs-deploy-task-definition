@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ecs"
 )
@@ -15,16 +14,18 @@ func main() {
 	ECS_TASK_DEFINITION := os.Getenv("ECS_TASK_DEFINITION")
 	REGION := os.Getenv("REGION")
 	IMAGE_URI := os.Getenv("IMAGE_URI")
-	accessKeyID := os.Getenv("AWS_ACCESS_KEY_ID")
-	secretAccessKey := os.Getenv("AWS_SECRET_ACCESS_KEY")
 	ecsCluster := os.Getenv("ECS_CLUSTER")
 	ecsService := os.Getenv("ECS_SERVICE")
 
 	sess, err := session.NewSession(&aws.Config{
-		Region:      aws.String(REGION),
-		Credentials: credentials.NewStaticCredentials(accessKeyID, secretAccessKey, ""),
+		Region: aws.String(REGION),
 	})
 
+	if err != nil {
+		fmt.Println("Error", err)
+		os.Exit(1)
+	}
+	
 	svc := ecs.New(sess)
 
 	resp, err := svc.DescribeTaskDefinition(&ecs.DescribeTaskDefinitionInput{
